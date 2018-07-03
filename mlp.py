@@ -12,25 +12,31 @@ class MLP:
     y^ = softmax((ReLU(tanh(w1*x + b1)*w2 + b2) + ws*x)*w3 + b3)
     """
     def __init__(self,
-                 input_dim=2,
-                 first_hid_dim=20,
-                 second_hid_dim=15,
-                 output_dim=3,
-                 learning_rate=1e-3,
-                 batch_size=630):
+                 input_dim,
+                 first_hid_dim,
+                 second_hid_dim,
+                 output_dim,
+                 learning_rate,
+                 batch_size):
 
-        # TODO add Xavier initialization
-        self.w1 = np.random.randn(first_hid_dim, input_dim)
-        self.w2 = np.random.randn(second_hid_dim, first_hid_dim)
-        self.w3 = np.random.randn(output_dim, second_hid_dim)
-        self.ws = np.eye(second_hid_dim, input_dim)
-
-        self.b1 = np.random.randn(first_hid_dim, 1)
-        self.b2 = np.random.randn(second_hid_dim, 1)
-        self.b3 = np.random.randn(output_dim, 1)
+        self.xavier_init(input_dim, first_hid_dim, second_hid_dim, output_dim)
 
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+
+    def xavier_init(self, input_dim, first_hid_dim, second_hid_dim, output_dim):
+        stdv_input = 2. / (input_dim + first_hid_dim)
+        stdv_first = 2. / (first_hid_dim + second_hid_dim)
+        stdv_second = 2. / (second_hid_dim + output_dim)
+
+        self.w1 = np.random.uniform(-stdv_input, stdv_input, (first_hid_dim, input_dim))
+        self.w2 = np.random.uniform(-stdv_first, stdv_second, (second_hid_dim, first_hid_dim))
+        self.w3 = np.random.uniform(-stdv_second, stdv_second, (output_dim, second_hid_dim))
+        self.ws = np.eye(second_hid_dim, input_dim)
+
+        self.b1 = np.random.uniform(-stdv_input, stdv_input, (first_hid_dim, 1))
+        self.b2 = np.random.uniform(-stdv_first, stdv_first, (second_hid_dim, 1))
+        self.b3 = np.random.uniform(-stdv_second, stdv_second, (output_dim, 1))
 
     def forward(self, x):
         """
