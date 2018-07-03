@@ -19,6 +19,8 @@ def plot_stats(epoch_count, stats):
     plt.xlabel('iteration')
     plt.ylabel('accuracy')
     plt.plot(range(epoch_count), stats['test_accuracy'], 'b', label="accuracy")
+
+    plt.subplots_adjust(hspace=0.8)
     plt.show()
 
 
