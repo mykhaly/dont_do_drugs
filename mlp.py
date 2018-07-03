@@ -121,7 +121,8 @@ class MLP:
 
             train_stats['loss'].append(loss)
             train_stats['test_accuracy'].append(get_accuracy(self.predict(x_test), y_test))
-            print("Epoch: {}, Loss: {}".format(e, train_stats['loss'][-1]))
+            if not e % (epoch_num // 10):
+                print("Epoch: {}, Loss: {}".format(e, train_stats['loss'][-1]))
         return train_stats
 
 def get_accuracy(predicted, true_value):
