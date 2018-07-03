@@ -1,6 +1,8 @@
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plt
-from mlp import MLP
+
+from mlp import MLP, get_accuracy
 
 
 def plot_stats(epoch_count, stats):
@@ -19,35 +21,28 @@ def plot_stats(epoch_count, stats):
 
 
 def main():
-    data = np.loadtxt('data/data_class_train.txt')
-    data_x = data[:, 0:2]
-    data_y = data[:, 2]
-    n_samples = data.shape[0]
-
+    df = pd.read_csv('data/data_cannabis_2.csv')
+    x = df[['age', 'gender', 'education', 'country', 'ethnicity', 'nscore', 'escore', 'oscore',
+            'ascore', 'cscore', 'impulsive', 'ss']]
+    y = df['cannabis']
+    x = np.array(x)
+    y = np.array(y)
+    n_samples = x.shape[0]
     n_train = int(n_samples * 0.7)
-    perm = np.random.permutation(n_samples)
-    train_indx = perm[:n_train]
-    test_indx = perm[n_train:]
-
-    data_x_train, data_y_train = data_x[train_indx, :], data_y[train_indx]
-    data_x_test, data_y_test = data_x[test_indx, :], data_y[test_indx]
-
-
-    data_y_train = np.array(data_y_train, dtype='int8').T
-    data_y_test = np.array(data_y_test, dtype='int8').T
+    data_x_train, data_y_train = x[0:n_train, :], y[:n_train]
+    data_x_test, data_y_test = x[n_train:, :], y[n_train:]
     data_x_train = data_x_train.T
     data_x_test = data_x_test.T
 
-    number_of_iterations = 500
-    nn = MLP(input_dim=2,
-             first_hid_dim=40,
-             second_hid_dim=50,
-             output_dim=3,
-             batch_size=32)
-    stats = nn.train(data_x_train, data_y_train, data_x_test, data_y_test, number_of_iterations)
+    number_of_iterations = 600
+    nn = MLP(input_dim=12,
+             first_hid_dim=25,
+             second_hid_dim=15,
+             output_dim=2,
+             learning_rate=1e-3,
+             batch_size=20)
 
-    def get_accuracy(predicted, true_value):
-        return sum(true_value == predicted) / len(true_value)
+    stats = nn.train(data_x_train, data_y_train, data_x_test, data_y_test, number_of_iterations)
 
     data_y_train_pred = nn.predict(data_x_train)
     print("Train acc: {}".format(get_accuracy(data_y_train_pred, data_y_train)))
