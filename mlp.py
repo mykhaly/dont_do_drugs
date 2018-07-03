@@ -120,9 +120,7 @@ class MLP:
                 end = begin + self.batch_size
 
                 self.forward(x_train[:, begin:end])
-                # loss = AF.cross_entropy(self.y_pred, Y)
                 loss = log_loss(y_train[begin:end], self.y_pred.T)
-                # train_stats['loss'].append(loss)
                 self.back_propagation(y_train[begin:end])
 
             train_stats['loss'].append(loss)
@@ -130,6 +128,7 @@ class MLP:
             if not e % (epoch_num // 10):
                 print("Epoch: {}, Loss: {}".format(e, train_stats['loss'][-1]))
         return train_stats
+
 
 def get_accuracy(predicted, true_value):
     return sum(true_value == predicted) / len(true_value)
