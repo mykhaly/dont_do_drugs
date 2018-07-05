@@ -17,10 +17,12 @@ class MLP:
                  second_hid_dim,
                  output_dim,
                  learning_rate,
-                 batch_size):
+                 batch_size,
+                 last_activation=softmax):
 
         self.xavier_init(input_dim, first_hid_dim, second_hid_dim, output_dim)
 
+        self.last_activation = last_activation
         self.batch_size = batch_size
         self.learning_rate = learning_rate
 
@@ -56,7 +58,7 @@ class MLP:
         # third(output) layer. y_pred.shape = (output_dim, batch_size)
         self.x_2_hidden_act_with_skip_connnection = self.x_2_hidden_act + self.ws.dot(self.x)
         self.x3_hidden = self.w3.dot(self.x_2_hidden_act_with_skip_connnection) + self.b3
-        self.y_pred = softmax(self.x3_hidden)
+        self.y_pred = self.last_activation(self.x3_hidden)
 
         return self.y_pred
 
@@ -120,7 +122,10 @@ class MLP:
                 end = begin + self.batch_size
 
                 self.forward(x_train[:, begin:end])
-                loss = log_loss(y_train[begin:end], self.y_pred.T)
+
+                # one-hot encoding
+                one_hot_encoded = np.eye(np.unique(y_train).shape[0], dtype='int8')[y_train[begin:end]]
+                loss = log_loss(one_hot_encoded, self.y_pred.T)
                 self.back_propagation(y_train[begin:end])
 
             train_stats['loss'].append(loss)

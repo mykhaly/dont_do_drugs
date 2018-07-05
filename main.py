@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
+from sklearn.neural_network._base import softmax, tanh
 from mlp import MLP, get_accuracy
 
 
@@ -31,7 +32,8 @@ def main(dataset_filename,
          output_dim,
          learning_rate,
          batch_size,
-         number_of_iterations):
+         number_of_iterations,
+         use_tanh_as_last_activation=False):
     data_dir = 'data'
     df = pd.read_csv(os.path.join(data_dir, dataset_filename))
     x = df[['age', 'gender', 'education', 'country', 'ethnicity', 'nscore', 'escore', 'oscore',
@@ -52,12 +54,14 @@ def main(dataset_filename,
     data_x_train = data_x_train.T
     data_x_test = data_x_test.T
 
+    last_activation = tanh if use_tanh_as_last_activation else softmax
     nn = MLP(input_dim=input_dim,
              first_hid_dim=first_hid_dim,
              second_hid_dim=second_hid_dim,
              output_dim=output_dim,
              learning_rate=learning_rate,
-             batch_size=batch_size)
+             batch_size=batch_size,
+             last_activation=last_activation)
 
     stats = nn.train(data_x_train, data_y_train, data_x_test, data_y_test, number_of_iterations)
 
